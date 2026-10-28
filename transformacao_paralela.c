@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    /* O programa exige exatamente 5 processos */
+    // O programa exige exatamente 5 processos
     if (size != NUM_PROCS) {
         if (rank == 0) {
             fprintf(stderr, "Erro: execute com exatamente %d processos (mpirun -np %d ...)\n",
@@ -39,15 +39,15 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    const int local_size = DATA_SIZE / size; /* 20 elementos por processo */
+    const int local_size = DATA_SIZE / size; // 20 elementos por processo
 
-    int *dados_originais = NULL;   /* só existe no rank 0 */
+    int *dados_originais = NULL;   // só existe no rank 0
     int *dados_transformados = NULL;
 
     double inicio = MPI_Wtime();
 
 #ifdef USE_ALLGATHER
-    /* Com Allgather, todos os processos precisam do buffer final */
+    // Com Allgather, todos os processos precisam do buffer final
     dados_transformados = (int *)malloc(DATA_SIZE * sizeof(int));
 #else
     if (rank == 0) {
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    /* Vetor original criado somente no rank 0 */
+    // Vetor original criado somente no rank 0
     if (rank == 0) {
         dados_originais = (int *)malloc(DATA_SIZE * sizeof(int));
         for (int i = 0; i < DATA_SIZE; i++) {
@@ -64,21 +64,21 @@ int main(int argc, char *argv[]) {
         imprimir_vetor("Vetor original", rank, dados_originais, DATA_SIZE);
     }
 
-    /* Buffers locais */
+    // Buffers locais
     int *parte_local = (int *)malloc(local_size * sizeof(int));
     int *parte_transformada = (int *)malloc(local_size * sizeof(int));
 
-    /* 1) Distribui partes iguais do vetor entre os processos */
+    // 1) Distribui partes iguais do vetor entre os processos
     MPI_Scatter(dados_originais, local_size, MPI_INT,
                 parte_local, local_size, MPI_INT,
                 0, MPI_COMM_WORLD);
 
-    /* 2) Transformação local: f(x) = x * x */
+    // 2) Transformação local: f(x) = x * x
     for (int i = 0; i < local_size; i++) {
         parte_transformada[i] = parte_local[i] * parte_local[i];
     }
 
-    /* 3) Reúne os resultados */
+    // 3) Reúne os resultados
 #ifdef USE_ALLGATHER
     MPI_Allgather(parte_transformada, local_size, MPI_INT,
                   dados_transformados, local_size, MPI_INT,
@@ -91,9 +91,9 @@ int main(int argc, char *argv[]) {
 
     double fim = MPI_Wtime();
 
-    /* 4) Exibição do resultado */
+    // 4) Exibição do resultado
 #ifdef USE_ALLGATHER
-    /* Todos têm o vetor final; imprime em ordem de rank para não embaralhar a saída */
+    // Todos têm o vetor final; imprime em ordem de rank para não embaralhar a saída
     for (int r = 0; r < size; r++) {
         if (rank == r) {
             imprimir_vetor("Vetor transformado", rank, dados_transformados, DATA_SIZE);
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
 
     free(parte_local);
     free(parte_transformada);
-    free(dados_originais);       /* free(NULL) é seguro */
+    free(dados_originais);       // free(NULL) é seguro
     free(dados_transformados);
 
     MPI_Finalize();
