@@ -1,6 +1,6 @@
-//Enrique Cipolla Martins - 
+//Enrique Cipolla Martins - 10427834
 //Henrique Ferreira Marciano - 10439797
-//Pedro Gabriel - 
+//Pedro Gabriel - 10437465
 
 //Compilar:  mpicc transformacao_paralela.c -o transformacao_paralela
 //Executar:  mpirun -np 5 ./transformacao_paralela 
